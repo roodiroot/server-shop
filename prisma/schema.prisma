@@ -41,9 +41,7 @@ model Type {
   name        String     @unique
   description String?
   img         String?
-  models      Model[]
   categoryes  Category[]
-  products    Product[]
 
   @@map("types")
 }
@@ -53,9 +51,9 @@ model Category {
   name        String    @unique
   description String?
   img         String?
-  types       Type[]
+  typeId      Int
+  type        Type @relation(fields: [typeId], references: [id], onDelete: Cascade)
   models      Model[]
-  products    Product[]
 
   @@map("categoryes")
 }
@@ -65,8 +63,8 @@ model Model {
   name        String     @unique
   description String?
   img         String?
-  types       Type[]
-  categoryes  Category[]
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   products    Product[]
 
   @@map("models")
@@ -76,27 +74,83 @@ model Product {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
+  parameter   String?
+  img         String[] @default([])
   modelId     Int
   model       Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  typeId      Int
-  type        Type     @relation(fields: [typeId], references: [id], onDelete: Cascade)
   size        Size[]
-  parameter   String?
+  size_2      Size2[]
+  size_3      Size3[]
 
   @@map("products")
 }
 
 model Size {
-  id        Int     @id @default(autoincrement())
-  sizeMm    String?
-  price     Int?
-  productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id                      Int     @id @default(autoincrement())
+  sizeMm                  String?
+  fastex_standard_price   Int?
+  fastex_reinforced_price Int?
+  slip_price              Int?
+  martingale_price        Int?
+  productId               Int
+  product                 Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("sizes")
 }
+
+model Size2 {
+  id                      Int     @id @default(autoincrement())
+  length                  String?
+  price                   Int?
+  productId               Int
+  product                 Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("sizes2")
+}
+model Size3 {
+  id                      Int     @id @default(autoincrement())
+  size                    String?
+  description_size        String?
+  price                   Int?
+  productId               Int
+  product                 Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("sizes3")
+}
+
+model Order {
+  id                      Int     @id @default(autoincrement())
+  name                    String?
+  email                   String?
+  phone                   String?
+  totalSumm               Int?
+  commentValue            String?
+  promocodeValue          String?
+  products                ProductBasket[]                   
+
+  @@map("order")     
+}
+
+model ProductBasket {
+  id                      Int     @id @default(autoincrement())
+  productId               Int
+  orderId                 Int
+  order                   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  name String?
+  price Int?
+  comment String?
+  carbine String?
+  interception String?
+  size String?
+  count Int?
+  totalSum Int?
+  print String?
+  color String?
+  ring String?
+
+  @@map("product-basket")
+}
+
 
 enum Role {
   ADMIN
@@ -107,3 +161,48 @@ enum Provider {
   GOOGLE
   YANDEX
 }
+
+
+// {
+//       id: 92,
+//       name: 'Розовый ошейник',
+//       price: 2850,
+//       img: 'b735ab2e-1a92-4293-9911-a9f4f1a8981d.jpg',
+//       description: 'Элегантный ошейник для вашего питомца - идеальное сочетание стиля и комфорта. Изготовлен из высококачествых материалов, обеспечивая мягкость и удобство для вашего любимца. Регулируемый размер и прочная фурнитура делают этот ошейник идеальным выбором для безопасных и комфортных прогулок.',
+//       coment: 'Коментарий к ошейнику',
+//       carbine: 'Да',
+//       interception: 'Да',
+//       size: 'SM 30-43см',
+//       count: 1,
+//       total: 2850
+//     },
+//     {
+//       id: 94,
+//       name: 'Поводок 2',
+//       price: 3300,
+//       img: 'bb96449e-85da-4167-ad54-8c397ce76433.jpg',
+//       description: 'Поводок для собак из прорезиненной стропы с ручкой в дизайне ошейника или шлейки.\r\n' +
+//         'Стропа сделана из пропиленовой нити высокой прочности с вплетением латекса, что обеспечивает  лучшее "сцепление" с рукой.\r\n' +
+//         'Рассчитан на  рывковую нагрузку 400 кг.\r\n' +
+//         'Оснащен полукольцом для диспенсера\r\n' +
+//         'Может быть укомплектован карабином из алюминия для повышения безопасности.',
+//       coment: 'Коментарий к поводку',
+//       carbine: 'Да',
+//       interception: 'Да',
+//       print: 'Таксы',
+//       size: '2,5 м',
+//       count: 2,
+//       total: 6600
+//     },
+//     {
+//       id: 106,
+//       name: 'Шлейка 1',
+//       price: 3500,
+//       img: '300f77ce-93ff-4a3e-b521-0b7814368c46.jpg',
+//       description: 'Изготовленная из прочных материалов, шлейка предлагает регулируемый дизайн для идеальной посадки и подходит для различных размеров собак. ',
+//       coment: 'Коментарий к шлейке',
+//       ring: 'Да',
+//       size: 'S',
+//       count: 3,
+//       total: 10500
+//     }

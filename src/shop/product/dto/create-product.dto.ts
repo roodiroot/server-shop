@@ -1,24 +1,21 @@
-import { IsEmail, IsNumber, IsString, MinLength } from 'class-validator';
-import { CreateSizeDto } from 'src/shop/size/dto';
+import { IsString, MinLength } from 'class-validator';
 
 export class CreateProductDto {
     @IsString()
     @MinLength(2)
     name: string;
 
-    @IsNumber()
-    typeId: number;
-
-    @IsNumber()
-    categoryId: number;
-
-    @IsNumber()
-    modelId: number;
-
     @IsString()
+    modelId: string;
+
+    categoryId: string;
+
+    // @IsString()
     parameter: string;
 
-    size: CreateSizeDto[]
+    size: string;
+    size_2: string;
+    size_3: string;
 
     description?: string;
 }

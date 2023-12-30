@@ -15,13 +15,18 @@ import { CategoryController } from './shop/category/category.controller';
 import { CategoryService } from './shop/category/category.service';
 import { CategoryModule } from './shop/category/category.module';
 import { SizeModule } from './shop/size/size.module';
+import { Size2Module } from './shop/size2/size2.module';
+import { Size3Module } from './shop/size3/size3.module';
+import { OrderModule } from './shop/order/order.module';
+import { ProductBasketService } from './shop/product-basket/product-basket.service';
+import { ProductBasketModule } from './shop/product-basket/product-basket.module';
 
 @Module({
-    imports: [UserModule, PrismaModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), FilesModule, TypeModule, ProductModule, ModelModule, CategoryModule, SizeModule],
+    imports: [UserModule, PrismaModule, AuthModule, ConfigModule.forRoot({ isGlobal: true }), FilesModule, TypeModule, ProductModule, ModelModule, CategoryModule, SizeModule, Size2Module, Size3Module, OrderModule, ProductBasketModule],
     providers: [{
         provide: APP_GUARD,
         useClass: JwtAuthGuard,
-      }, FilesService, CategoryService,],
+      }, FilesService, CategoryService, ProductBasketService,],
     controllers: [CategoryController]
 })
 export class AppModule {}

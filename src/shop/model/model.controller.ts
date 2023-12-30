@@ -1,4 +1,21 @@
-import { BadRequestException, Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    FileTypeValidator,
+    Get,
+    MaxFileSizeValidator,
+    Param,
+    ParseFilePipe,
+    Post,
+    Put,
+    Query,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors,
+    ValidationPipe,
+} from '@nestjs/common';
 import { ModelService } from './model.service';
 import { Public, Roles } from '@common/decorators';
 import { CreateModelDto } from './dto';
@@ -8,8 +25,8 @@ import { Role } from '@prisma/client';
 
 @Controller('model')
 export class ModelController {
-    constructor(private modelService: ModelService){}
-    
+    constructor(private modelService: ModelService) {}
+
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
     @Post()
@@ -19,69 +36,81 @@ export class ModelController {
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
-                    new FileTypeValidator({fileType: '.(png|jpeg|jpg)'}),
+                    new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
                     new MaxFileSizeValidator({ maxSize: 2600000 }),
                 ],
                 fileIsRequired: false,
-            })
-        ) img?: Express.Multer.File){
-        const model = await this.modelService.create(dto, img)
-        return model
+            }),
+        )
+        img?: Express.Multer.File,
+    ) {
+        const model = await this.modelService.create(dto, img);
+        return model;
     }
 
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
-    @Put(":id")
+    @Put(':id')
     @UseInterceptors(FileInterceptor('img'))
     async update(
-        @Body(new ValidationPipe()) dto: any, 
-        @Param("id") id: string,
+        @Body(new ValidationPipe()) dto: any,
+        @Param('id') id: string,
         @UploadedFile(
-        new ParseFilePipe({
-            validators: [
-                new FileTypeValidator({fileType: '.(png|jpeg|jpg)'}),
-                new MaxFileSizeValidator({ maxSize: 2600000 }),
-            ],
-            fileIsRequired: false,
-          })
-    ) img?: Express.Multer.File ){
-        const type = await this.modelService.update(id, dto, img)
-        return type
+            new ParseFilePipe({
+                validators: [
+                    new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+                    new MaxFileSizeValidator({ maxSize: 2600000 }),
+                ],
+                fileIsRequired: false,
+            }),
+        )
+        img?: Express.Multer.File,
+    ) {
+        const type = await this.modelService.update(id, dto, img);
+        return type;
     }
 
     @Public()
     @Get()
-    async getList(){
-        const models = await this.modelService.getList()
-        return models
+    async getList(@Query() params: { filter?: string; range?: string; sort?: string }) {
+        const filters_all = { filter: '', sort: '', range: '' };
+        filters_all.filter = params?.filter ?? '{}';
+        filters_all.sort = params?.sort ?? '[]';
+        filters_all.range = params?.range ?? '[]';
+        const { models, count } = await this.modelService.getList(
+            JSON.parse(filters_all.filter),
+            JSON.parse(filters_all.sort),
+            JSON.parse(filters_all.range),
+        );
+        return { data: models, count };
     }
 
     @Public()
-    @Get(":id")
-    async getOne(@Param("id") id: string){
-        if(isNaN(Number(id))){
-            throw new BadRequestException('Не верный тип id')
+    @Get(':id')
+    async getOne(@Param('id') id: string) {
+        if (isNaN(Number(id))) {
+            throw new BadRequestException('Не верный тип id');
         }
-        const model = await this.modelService.getOne(Number(id))
-        return model
+        const model = await this.modelService.getOne(Number(id));
+        return model;
     }
 
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
-    @Delete(":id")
-    async delete(@Param("id") id: string){
-        if(isNaN(Number(id))){
-            throw new BadRequestException('Не верный тип id')
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
+        if (isNaN(Number(id))) {
+            throw new BadRequestException('Не верный тип id');
         }
-        const del = await this.modelService.delete(Number(id))
-        return del
+        const del = await this.modelService.delete(Number(id));
+        return del;
     }
 
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
     @Delete()
-    async deleteMany(@Body() ids: number[]){
-        const delElements = await this.modelService.deleteMany(ids)
-        return delElements
+    async deleteMany(@Body() ids: number[]) {
+        const delElements = await this.modelService.deleteMany(ids);
+        return delElements;
     }
 }
